@@ -36,12 +36,11 @@ Q_OBJECT
 
   public:
 
-    TETty();
+    TETty(const QString &_tty);
     ~TETty();
 
   public:
 
-    void setWriteable(bool writeable);
     QString error() { return m_strError; }
     void setXonXoff(bool on);
     void setSize(int lines, int cols);
@@ -52,12 +51,6 @@ Q_OBJECT
     void send_bytes(const char* s, int len);
 
   signals:
-
-    /*!
-        emitted when the client program terminates.
-    */
-    void done(int returnCode);
-
     /*!
         emitted when a new block of data comes in.
         \param s - the data
@@ -76,10 +69,9 @@ Q_OBJECT
     void send_string(const char* s);
     bool buffer_full() { return m_bufferFull; }
 
-    bool sendBreak();
 
   public slots:
-      void donePty();
+    bool sendBreak();
       
   private:
     void appendSendJob(const char* s, int len);

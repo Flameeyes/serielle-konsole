@@ -93,10 +93,6 @@ extern "C" {
 # define CTRL(x) ((x) & 037)
 #endif
 
-void TETty::donePty()
-{
-}
-
 void TETty::setSize(int lines, int cols)
 {
   winSize.ws_row = (unsigned short)lines;
@@ -155,32 +151,13 @@ void TETty::setErase(char erase)
   _tcsetattr(ttyfd, &tios);
 }
 
-void TETty::setWriteable(bool writeable)
-{
-  struct stat sbuf;
-  stat(ttyName.latin1(), &sbuf);
-  if (writeable)
-    chmod(ttyName.latin1(), sbuf.st_mode | S_IWGRP);
-  else
-    chmod(ttyName.latin1(), sbuf.st_mode & ~(S_IWGRP|S_IWOTH));
-}
-
 /*!
     Create an instance.
 */
-TETty::TETty()
+TETty::TETty(const QString &_tty)
 {
   m_bufferFull = false;
-  ttyName = "/dev/ttyS0";
-
-  /*
-  connect(this, SIGNAL(receivedStdout(KProcess *, char *, int )),
-	  this, SLOT(dataReceived(KProcess *,char *, int)));
-  connect(this, SIGNAL(processExited(KProcess *)),
-          this, SLOT(donePty()));
-  connect(this, SIGNAL(wroteStdin(KProcess *)),
-          this, SLOT(writeReady()));
-  */
+  ttyName = _tty;
 
   ttyfd = open(ttyName.latin1(), O_RDWR|O_NOCTTY|O_NONBLOCK);
 

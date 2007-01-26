@@ -1147,7 +1147,7 @@ bool SerielleKonsole::queryClose()
       sessions.next();
     }
 
-    return false;
+    return true;
 }
 
 /**

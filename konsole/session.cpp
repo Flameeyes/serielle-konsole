@@ -60,8 +60,11 @@ TESession::TESession(TEWidget* _te, const QString &_device, ulong _winId,
    , schema_no(0)
    , font_no(3)
    , silence_seconds(10)
+   , iconName("konsole")
    , xon_xoff(false)
    , device(_device)
+   , term("xterm")
+   , winId(_winId)
    , sessionId(_sessionId)
    , zmodemBusy(false)
    , zmodemProc(0)
@@ -79,11 +82,7 @@ TESession::TESession(TEWidget* _te, const QString &_device, ulong _winId,
   QObject::connect(te,SIGNAL(changedFontMetricSignal(int,int)),
                    this,SLOT(onFontMetricChange(int,int)));
 
-  term = "xterm";
-  winId = _winId;
-  iconName = "konsole";
-
-  setPty( new TETty() );
+  setPty( new TETty(device) );
 
   connect( em, SIGNAL( changeTitle( int, const QString & ) ),
            this, SLOT( setUserTitle( int, const QString & ) ) );
@@ -149,8 +148,6 @@ void TESession::run()
 
   sh->setXonXoff(xon_xoff);
   sh->setErase(em->getErase());
-
-  sh->setWriteable(false);  // We are reachable via kwrited.
 }
 
 void TESession::changeTabTextColor( int color )

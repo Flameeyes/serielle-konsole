@@ -1,0 +1,3 @@
+#MIN_CONFIG
+
+AC_CHECK_HEADER(pty.h)

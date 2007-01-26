@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Exec=serielle_konsole
+Icon=konsole
+DocPath=serielle-konsole/index.html
+Terminal=false
+X-KDE-StartupNotify=true
+Name=Serielle Konsole
+GenericName=Serial Terminal Emulator
+X-DCOP-ServiceType=Multi
+Categories=Qt;KDE;System;TerminalEmulator;

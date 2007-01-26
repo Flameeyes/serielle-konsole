@@ -165,12 +165,15 @@ TETty::TETty(const QString &_tty)
   _tcgetattr(ttyfd, &options);
   cfsetispeed(&options, B115200);
   cfsetospeed(&options, B115200);
-  options.c_cflag |= (CLOCAL | CREAD | CS8 | CRTSCTS);
+  options.c_cflag |= (CLOCAL | CREAD | CS8);
+  options.c_cflag &= ~(CRTSCTS);
   options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG | PARENB | CSTOPB | CSIZE);
   _tcsetattr(ttyfd, &options);
 
-  m_notifier = new QSocketNotifier( ttyfd, QSocketNotifier::Read, this );
-  connect( m_notifier, SIGNAL(activated(int)), this, SLOT(dataReceived()) );
+  m_readNotifier = new QSocketNotifier( ttyfd, QSocketNotifier::Read, this );
+  connect( m_readNotifier, SIGNAL(activated(int)), this, SLOT(dataReceived()) );
+  m_writeNotifier = new QSocketNotifier( ttyfd, QSocketNotifier::Write, this );
+  connect( m_writeNotifier, SIGNAL(activated(int)), this, SLOT(writeReady()) );
 }
 
 /*!
@@ -178,7 +181,8 @@ TETty::TETty(const QString &_tty)
 */
 TETty::~TETty()
 {
-  delete m_notifier;
+  delete m_readNotifier;
+  delete m_writeNotifier;
   close(ttyfd);
 }
 
@@ -204,7 +208,6 @@ void TETty::send_string(const char* s)
 
 void TETty::writeReady()
 {
-  pendingSendJobs.remove(pendingSendJobs.begin());
   m_bufferFull = false;
   doSendJobs();
 }
@@ -218,11 +221,13 @@ void TETty::doSendJobs() {
   
   SendJob& job = pendingSendJobs.first();
   int result = ::write(ttyfd, job.buffer.data(), job.length);
+  qWarning("Sent %d bytes... ", job.length);
   if ( result < 0 )
   {
     qWarning("Uh oh.. can't write data..");
     return;
   }
+  pendingSendJobs.remove(pendingSendJobs.begin());
   m_bufferFull = true;
 }
 
@@ -234,6 +239,7 @@ void TETty::appendSendJob(const char* s, int len)
 /*! sends len bytes through the line */
 void TETty::send_bytes(const char* s, int len)
 {
+  qWarning("Sending %d bytes... ", len);
   appendSendJob(s,len);
   if (!m_bufferFull)
      doSendJobs();

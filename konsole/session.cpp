@@ -63,7 +63,6 @@ TESession::TESession(TEWidget* _te, const QString &_device, ulong _winId,
    , iconName("konsole")
    , xon_xoff(false)
    , device(_device)
-   , term("xterm")
    , winId(_winId)
    , sessionId(_sessionId)
    , zmodemBusy(false)

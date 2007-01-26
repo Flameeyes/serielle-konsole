@@ -193,7 +193,6 @@ private:
   QString	 stateIconName;
 
   QString        device;
-  QString        term;
   ulong          winId;
   QString        sessionId;
 

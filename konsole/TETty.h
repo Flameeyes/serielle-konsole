@@ -49,8 +49,10 @@ Q_OBJECT
   public slots:
     void useUtf8(bool on);
     void send_bytes(const char* s, int len);
+    bool sendBreak();
 
   signals:
+
     /*!
         emitted when a new block of data comes in.
         \param s - the data
@@ -64,15 +66,10 @@ Q_OBJECT
     void buffer_empty();
 
   public:
-
     void send_byte(char s);
     void send_string(const char* s);
     bool buffer_full() { return m_bufferFull; }
 
-
-  public slots:
-    bool sendBreak();
-      
   private:
     void appendSendJob(const char* s, int len);
 
@@ -99,7 +96,8 @@ Q_OBJECT
     QString ttyName;
     struct winsize winSize;
 
-    QSocketNotifier *m_notifier;
+    QSocketNotifier *m_readNotifier;
+    QSocketNotifier *m_writeNotifier;
 
     bool m_bufferFull:1;
 };

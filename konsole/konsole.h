@@ -43,8 +43,6 @@
 #include "TEmuVt102.h"
 #include "session.h"
 #include "schema.h"
-#include "konsolebookmarkmenu.h"
-#include "konsolebookmarkhandler.h"
 
 #include "konsoleiface.h"
 
@@ -68,19 +66,18 @@ class QToolButton;
 // Defined in main.C
 const char *konsole_shell(QStrList &args);
 
-class Konsole : public KMainWindow, virtual public KonsoleIface
+class SerielleKonsole : public KMainWindow, virtual public KonsoleIface
 {
     Q_OBJECT
 
     friend class KonsoleSessionManaged;
 public:
 
-  Konsole(const char * name, int histon, bool menubaron, bool tabbaron,
+  SerielleKonsole(const char * name, int histon, bool menubaron, bool tabbaron,
     bool frameon, bool scrollbaron,
-    QCString type = 0, bool b_inRestore = false, const int wanted_tabbar = 0,
-    const QString &workdir=QString::null);
+    QCString type = 0, bool b_inRestore = false, const int wanted_tabbar = 0);
 
-  ~Konsole();
+  ~SerielleKonsole();
   void setColLin(int columns, int lines);
   void setAutoClose(bool on);
   void initFullScreen();
@@ -92,7 +89,7 @@ public:
   void initMasterMode(bool on);
   void initTabColor(QColor color);
   void initHistory(int lines, bool enable);
-  void newSession(const QString &program, const QStrList &args, const QString &term, const QString &icon, const QString &title, const QString &cwd);
+  void newSession(const QString &device, const QString &icon, const QString &title);
   void setSchema(const QString & path);
   void setEncoding(int);
   void setSessionTitle(QString&, TESession* = 0);
@@ -114,8 +111,6 @@ public:
   void activateSession(const QString& sessionId);
   void feedAllSessions(const QString &text);
   void sendAllSessions(const QString &text);
-
-  KURL baseURL() const;
 
   virtual bool processDynamic(const QCString &fun, const QByteArray &data, QCString& replyType, QByteArray &replyData);
   virtual QCStringList functionsDynamic();
@@ -160,7 +155,6 @@ private slots:
   void schema_menu_check();
   void attachSession(TESession*);
   void slotDetachSession();
-  void bookmarks_menu_check();
   void newSession(int kind);
   void newSessionTabbar(int kind);
   void updateSchemaMenu();
@@ -181,7 +175,6 @@ private slots:
   void moveSessionRight();
   void allowPrevNext();
   void setSchema(int n, TEWidget* tewidget=0);   // no slot necessary?
-  void sendSignal(int n);
   void slotClearTerminal();
   void slotResetClearTerminal();
   void slotSelectTabbar();
@@ -212,8 +205,6 @@ private slots:
 
   void disableMasterModeConnections();
   void enableMasterModeConnections();
-  void enterURL( const QString&, const QString& );
-  void newSession( const QString&, const QString& );
 
   void slotFind();
   void slotFindDone();
@@ -256,9 +247,9 @@ private slots:
   void slotSetEncoding();
 private:
   KSimpleConfig *defaultSession();
-  QString newSession(KSimpleConfig *co, QString pgm = QString::null, const QStrList &args = QStrList(),
-                     const QString &_term = QString::null, const QString &_icon = QString::null,
-                     const QString &_title = QString::null, const QString &_cwd = QString::null);
+  QString newSession(KSimpleConfig *co, const QString &_device = QString::null,
+		     const QString &_icon = QString::null,
+		     const QString &_title = QString::null);
   void readProperties(KConfig *config, const QString &schema, bool globalConfigOnly);
   void applySettingsToGUI();
   void makeTabWidget();
@@ -316,13 +307,10 @@ private:
   KPopupMenu* m_session;
   KPopupMenu* m_edit;
   KPopupMenu* m_view;
-  KPopupMenu* m_bookmarks;
-  KPopupMenu* m_bookmarksSession;
   KPopupMenu* m_options;
   KPopupMenu* m_schema;
   KPopupMenu* m_keytab;
   KPopupMenu* m_tabbarSessionsCommands;
-  KPopupMenu* m_signals;
   KPopupMenu* m_help;
   KPopupMenu* m_rightButton;
   KPopupMenu* m_sessionList;
@@ -367,9 +355,6 @@ private:
   KAction       *m_tabDetachSession;
 
   KActionCollection *m_shortcuts;
-
-  KonsoleBookmarkHandler *bookmarkHandler;
-  KonsoleBookmarkHandler *bookmarkHandlerSession;
 
   KonsoleFind* m_finddialog;
   bool         m_find_first;
@@ -435,7 +420,6 @@ private:
 
   QSignalMapper* sessionNumberMapper;
   QStringList    sl_sessionShortCuts;
-  QString  s_workDir;
 
   QColor    m_tabColor;
 };

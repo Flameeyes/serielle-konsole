@@ -35,7 +35,7 @@
 
 extern unsigned short vt100_graphics[32];
 
-class Konsole;
+class SerielleKonsole;
 class QLabel;
 class QTimer;
 
@@ -44,7 +44,7 @@ class TEWidget : public QFrame
 {
    Q_OBJECT
 
-  friend class Konsole;
+  friend class SerielleKonsole;
 public:
 
     TEWidget(QWidget *parent=0, const char *name=0);

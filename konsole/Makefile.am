@@ -15,7 +15,7 @@ fontembedder_LDADD = $(LIB_QT)
 # konsole kdeinit module
 serielle_konsole_la_SOURCES = TETty.cpp BlockArray.cpp main.cpp konsole.cpp schema.cpp session.cpp TEWidget.cpp TEmuVt102.cpp \
      TEScreen.cpp TEmulation.cpp TEHistory.cpp keytrans.cpp konsoleiface.skel sessioniface.skel \
-     konsole_wcwidth.cpp konsolebookmarkhandler.cpp konsolebookmarkmenu.cpp \
+     konsole_wcwidth.cpp \
      zmodem_dialog.cpp printsettings.cpp
 serielle_konsole_la_LDFLAGS = $(all_libraries) -module -avoid-version
 serielle_konsole_la_LIBADD = $(LIB_KDEUI) $(LIB_KIO) $(LIB_KDEPRINT) $(LIBUTIL) $(XTESTLIB) $(LIB_XRENDER)
@@ -23,7 +23,7 @@ serielle_konsole_la_LIBADD = $(LIB_KDEUI) $(LIB_KIO) $(LIB_KDEPRINT) $(LIBUTIL) 
 noinst_HEADERS = TEWidget.h TETty.h TEmulation.h TEmuVt102.h \
 	TECommon.h TEScreen.h konsole.h schema.h session.h konsole_wcwidth.h \
 	TEHistory.h keytrans.h default.keytab.h BlockArray.h \
-        konsolebookmarkhandler.h konsolebookmarkmenu.h zmodem_dialog.h \
+        zmodem_dialog.h \
         printsettings.h linefont.h
 
 METASOURCES = AUTO

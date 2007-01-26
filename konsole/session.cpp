@@ -169,41 +169,10 @@ void TESession::setProgram( const QString &_pgm, const QStrList &_args )
 
 void TESession::run()
 {
-  // Upon a KPty error, there is no description on what that error was...
-  // Check to see if the given program is executable.
-  QString exec = QFile::encodeName(pgm);
-  exec = KRun::binaryName(exec, false);
-  exec = KShell::tildeExpand(exec);
-  QString pexec = KGlobal::dirs()->findExe(exec);
-  if ( pexec.isEmpty() ) {
-    kdError()<<"can not execute "<<exec<<endl;
-    QTimer::singleShot(1, this, SLOT(done()));
-    return;
-  }
-
   QString appId=kapp->dcopClient()->appId();
 
-  QString cwd_save = QDir::currentDirPath();
-  if (!initial_cwd.isEmpty())
-     QDir::setCurrent(initial_cwd);
   sh->setXonXoff(xon_xoff);
-
-  /*
-  int result = sh->run(QFile::encodeName(pgm), args, term.latin1(), 
-          winId, add_to_utmp,
-          ("DCOPRef("+appId+",konsole)").latin1(),
-          ("DCOPRef("+appId+","+sessionId+")").latin1());
-  if (result < 0) {     // Error in opening pseudo teletype
-    kdWarning()<<"Unable to open a pseudo teletype!"<<endl;
-    QTimer::singleShot(0, this, SLOT(ptyError()));
-  }
-  */
   sh->setErase(em->getErase());
-
-  if (!initial_cwd.isEmpty())
-     QDir::setCurrent(cwd_save);
-  else
-     initial_cwd=cwd_save;
 
   sh->setWriteable(false);  // We are reachable via kwrited.
 }

@@ -45,11 +45,6 @@
 
 #include "konsoleiface.h"
 
-#undef PACKAGE
-#undef VERSION
-#define PACKAGE "konsole"
-#define VERSION "1.6.6"
-
 class KRootPixmap;
 class QLabel;
 class QCheckBox;
@@ -143,7 +138,6 @@ private slots:
   void closeCurrentSession();
   void confirmCloseCurrentSession(TESession* _se=0);
   void doneSession(TESession*);
-  void slotCouldNotClose();
   void toggleFullScreen();
   bool fullScreen();
   void setFullScreen(bool on);

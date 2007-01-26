@@ -263,7 +263,6 @@ SerielleKonsole::SerielleKonsole(const char* name, int histon, bool menubaron, b
 ,sl_sessionShortCuts(0)
 {
   isRestored = b_inRestore;
-  connect( &m_closeTimeout, SIGNAL(timeout()), this, SLOT(slotCouldNotClose()));
 
   no2command.setAutoDelete(true);
   menubar = menuBar();
@@ -1148,24 +1147,7 @@ bool SerielleKonsole::queryClose()
       sessions.next();
     }
 
-    m_closeTimeout.start(1500, true);
     return false;
-}
-
-void SerielleKonsole::slotCouldNotClose()
-{
-    int result = KMessageBox::warningContinueCancel(this,
-             i18n("The application running in Konsole does not respond to the close request. "
-                  "Do you want Konsole to close anyway?"),
-             i18n("Application Does Not Respond"),
-             KStdGuiItem::close());
-    if (result == KMessageBox::Continue)
-    {
-        while(sessions.first())
-        {
-            doneSession(sessions.current());
-        }
-    }
 }
 
 /**

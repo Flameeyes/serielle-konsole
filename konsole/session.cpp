@@ -245,7 +245,8 @@ bool TESession::sendBreak()
 
 bool TESession::closeSession()
 {
-  return wantedClose = true;
+  emit done();
+  return true;
 }
 
 void TESession::feedSession(const QString &text)
@@ -273,8 +274,6 @@ void TESession::renameSession(const QString &name)
 TESession::~TESession()
 {
  //kdDebug(1211) << "disconnnecting..." << endl;
-  QObject::disconnect( sh, SIGNAL( done(int) ),
-                       this, SLOT( done(int) ) );
   delete em;
   delete sh;
 

@@ -3097,25 +3097,16 @@ void SerielleKonsole::addSessionCommand(const QString &path)
 {
   KSimpleConfig* co;
   if (path.isEmpty())
-    co = new KSimpleConfig(locate("appdata", "shell.desktop"), true /* read only */);
+    co = new KSimpleConfig(locate("appdata", "firstserial.desktop"), true /* read only */);
   else
     co = new KSimpleConfig(path,true);
   co->setDesktopGroup();
   QString typ = co->readEntry("Type");
   QString txt = co->readEntry("Name");
+  QString dev = co->readEntry("Device");
 
-  // try to locate the binary
-  QString exec= co->readPathEntry("Exec");
-  if (exec.startsWith("su -c \'")) {
-     exec = exec.mid(7,exec.length()-8);
-  }
-
-  exec = KRun::binaryName(exec, false);
-  exec = KShell::tildeExpand(exec);
-  QString pexec = KGlobal::dirs()->findExe(exec);
-
-  if (typ.isEmpty() || txt.isEmpty() || typ != "KonsoleApplication"
-      || ( !exec.isEmpty() && pexec.isEmpty() ) )
+  if ( typ.isEmpty() || txt.isEmpty() || typ != "SerielleKonsole"
+      || dev.isEmpty() )
   {
     if (!path.isEmpty())
        delete co;

@@ -262,4 +262,12 @@ void TETty::send_bytes(const char* s, int len)
      doSendJobs();
 }
 
+bool TETty::sendBreak()
+{
+  if ( ttyfd < 0 ) return false;
+
+  tcsendbreak(ttyfd, 0);
+  return true;
+}
+
 #include "TETty.moc"

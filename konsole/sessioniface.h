@@ -29,12 +29,11 @@ class SessionIface : virtual public DCOPObject
     k_dcop:
 
     virtual bool closeSession() =0;
-    virtual bool sendSignal(int signal) =0;
+    virtual bool sendBreak() =0;
 
     virtual void clearHistory() =0;
     virtual void renameSession(const QString &name) =0;
     virtual QString sessionName() =0;
-    virtual int sessionPID() =0;
     
     virtual QString schema() =0;
     virtual void setSchema(const QString &schema) =0;

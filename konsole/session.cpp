@@ -47,7 +47,8 @@
     of the abilities of the framework - multible sessions.
 */
 
-TESession::TESession(TEWidget* _te, const QString &_term, ulong _winId, const QString &_sessionId, const QString &_initial_cwd)
+TESession::TESession(TEWidget* _te, const QString &_device, ulong _winId,
+		     const QString &_sessionId)
    : DCOPObject( _sessionId.latin1() )
    , sh(0)
    , connected(true)
@@ -55,18 +56,13 @@ TESession::TESession(TEWidget* _te, const QString &_term, ulong _winId, const QS
    , monitorSilence(false)
    , notifiedActivity(false)
    , masterMode(false)
-   , autoClose(true)
    , wantedClose(false)
    , schema_no(0)
    , font_no(3)
    , silence_seconds(10)
-   , add_to_utmp(true)
    , xon_xoff(false)
-   , pgm(QString())
-   , args(QStrList())
+   , device(_device)
    , sessionId(_sessionId)
-   , cwd("")
-   , initial_cwd(_initial_cwd)
    , zmodemBusy(false)
    , zmodemProc(0)
    , zmodemProgress(0)
@@ -83,7 +79,7 @@ TESession::TESession(TEWidget* _te, const QString &_term, ulong _winId, const QS
   QObject::connect(te,SIGNAL(changedFontMetricSignal(int,int)),
                    this,SLOT(onFontMetricChange(int,int)));
 
-  term = _term;
+  term = "xterm";
   winId = _winId;
   iconName = "konsole";
 
@@ -110,8 +106,6 @@ void TESession::setPty(TETty *_sh)
     delete sh;
   }
   sh = _sh;
-  connect( sh, SIGNAL( forkedChild() ),
-           this, SIGNAL( forkedChild() ));
 
   //kdDebug(1211)<<"TESession ctor() sh->setSize()"<<endl;
   sh->setSize(te->Lines(),te->Columns()); // not absolutely nessesary
@@ -120,25 +114,13 @@ void TESession::setPty(TETty *_sh)
   connect( sh,SIGNAL(block_in(const char*,int)),this,SLOT(onRcvBlock(const char*,int)) );
 
   connect( em,SIGNAL(sndBlock(const char*,int)),sh,SLOT(send_bytes(const char*,int)) );
-  connect( em,SIGNAL(lockPty(bool)),sh,SLOT(lockPty(bool)) );
   connect( em,SIGNAL(useUtf8(bool)),sh,SLOT(useUtf8(bool)) );
 
-  connect( sh,SIGNAL(done(int)), this,SLOT(done(int)) );
-
-  if (!sh->error().isEmpty())
-     QTimer::singleShot(0, this, SLOT(ptyError()));
-}
-
-void TESession::ptyError()
-{
-  // FIXME:  sh->error() is always empty
-  if ( sh->error().isEmpty() )
+  if (!sh->error().isEmpty()) {
     KMessageBox::error( te->topLevelWidget(),
-       i18n("Konsole is unable to open a PTY (pseudo teletype).  It is likely that this is due to an incorrect configuration of the PTY devices.  Konsole needs to have read/write access to the PTY devices."), 
-       i18n("A Fatal Error Has Occurred") );
-  else
-    KMessageBox::error(te->topLevelWidget(), sh->error());
-  emit done(this);
+			i18n("Serielle Konsole is unable to open the specified TTY.  It is likely that this is due to an incorrect configuration of the TTY devices.  Serielle Konsole needs to have read/write access to the TTY devices."), i18n("A Fatal Error Has Occurred") );
+    emit done(this);
+  }
 }
 
 void TESession::changeWidget(TEWidget* w)
@@ -159,12 +141,6 @@ void TESession::changeWidget(TEWidget* w)
                    this,SLOT(onContentSizeChange(int,int)));
   QObject::connect(te,SIGNAL(changedFontMetricSignal(int,int)),
                    this,SLOT(onFontMetricChange(int,int)));
-}
-
-void TESession::setProgram( const QString &_pgm, const QStrList &_args )
-{
-    pgm = _pgm;
-    args = _args;
 }
 
 void TESession::run()
@@ -201,11 +177,6 @@ void TESession::setUserTitle( int what, const QString &caption )
     }
     if (what == 30)
        renameSession(caption);
-    if (what == 31) {
-       cwd=caption;
-       cwd=cwd.replace( QRegExp("^~"), QDir::homeDirPath() );
-       emit openURLRequest(cwd);
-    }    
     if (what == 32) { // change icon via \033]32;Icon\007
        iconName = caption;
        te->update();
@@ -267,26 +238,14 @@ void TESession::onFontMetricChange(int height, int width)
   }
 }
 
-bool TESession::sendSignal(int signal)
+bool TESession::sendBreak()
 {
-  /*
-  return sh->kill(signal);
-  */
-  return true;
+  return sh->sendBreak();
 }
 
 bool TESession::closeSession()
 {
-  autoClose = true;
-  wantedClose = true;
-  /*
-  if (!sh->isRunning() || !sendSignal(SIGHUP))
-  {
-     // Forced close.
-     QTimer::singleShot(1, this, SLOT(done()));
-  }
-  */
-  return true;
+  return wantedClose = true;
 }
 
 void TESession::feedSession(const QString &text)
@@ -335,35 +294,6 @@ void TESession::setListenToKeyPress(bool l)
 }
 
 void TESession::done() {
-  //  emit processExited(sh);
-  emit done(this);
-}
-
-void TESession::done(int exitStatus)
-{
-  /*
-  if (!autoClose)
-  {
-    userTitle = i18n("<Finished>");
-    emit updateTitle(this);
-    return;
-  }
-  if (!wantedClose && (exitStatus || sh->signalled()))
-  {
-    if (sh->normalExit())
-      KNotifyClient::event(winId, "Finished", i18n("Session '%1' exited with status %2.").arg(title).arg(exitStatus));
-    else if (sh->signalled())
-    {
-      if (sh->coreDumped())
-        KNotifyClient::event(winId, "Finished", i18n("Session '%1' exited with signal %2 and dumped core.").arg(title).arg(sh->exitSignal()));
-      else
-        KNotifyClient::event(winId, "Finished", i18n("Session '%1' exited with signal %2.").arg(title).arg(sh->exitSignal()));
-    }
-    else
-      KNotifyClient::event(winId, "Finished", i18n("Session '%1' exited unexpectedly.").arg(title));
-  }
-  emit processExited(sh);
-  */
   emit done(this);
 }
 
@@ -402,11 +332,6 @@ QString TESession::keymap()
 int TESession::fontNo()
 {
   return font_no;
-}
-
-const QString & TESession::Term()
-{
-  return term;
 }
 
 const QString & TESession::SessionId()
@@ -448,6 +373,11 @@ void TESession::setTitle(const QString& _title)
 const QString& TESession::Title()
 {
   return title;
+}
+
+const QString& TESession::Device()
+{
+  return device;
 }
 
 void TESession::setIconName(const QString& _iconName)
@@ -503,30 +433,6 @@ void TESession::clearHistory()
   }
 }
 
-QStrList TESession::getArgs()
-{
-  return args;
-}
-
-QString TESession::getPgm()
-{
-  return pgm;
-}
-
-QString TESession::getCwd()
-{
-#if 0
-#ifdef HAVE_PROC_CWD
-  if (cwd.isEmpty()) {
-    QFileInfo Cwd(QString("/proc/%1/cwd").arg(sh->pid()));
-    if(Cwd.isSymLink())
-      return Cwd.readLink();
-  }
-#endif /* HAVE_PROC_CWD */
-#endif
-  return cwd;
-}
-
 bool TESession::isMonitorActivity() { return monitorActivity; }
 bool TESession::isMonitorSilence() { return monitorSilence; }
 bool TESession::isMasterMode() { return masterMode; }
@@ -560,11 +466,6 @@ void TESession::setMonitorSilenceSeconds(int seconds)
 void TESession::setMasterMode(bool _master)
 {
   masterMode=_master;
-}
-
-void TESession::setAddToUtmp(bool set)
-{
-  add_to_utmp = set;
 }
 
 void TESession::setXonXoff(bool set)

@@ -40,9 +40,8 @@ class TESession : public QObject, virtual public SessionIface
 
 public:
 
-  TESession(TEWidget* w,
-	    const QString &term, ulong winId, const QString &sessionId="session-1",
-	    const QString &initial_cwd = QString::null);
+  TESession(TEWidget* w, const QString &device,
+	    ulong winId, const QString &sessionId="session-1");
   void changeWidget(TEWidget* w);
   void setPty( TETty *_sh );
   TEWidget* widget() { return te; }
@@ -50,7 +49,7 @@ public:
 
   void        setConnect(bool r);  // calls setListenToKeyPress(r)
   void        setListenToKeyPress(bool l);
-  TEmulation* getEmulation();      // to control emulation
+  TEmulation* getEmulation();      // to control emulation;
   bool        isSecure();
   bool        isMonitorActivity();
   bool        isMonitorSilence();
@@ -58,7 +57,7 @@ public:
   int schemaNo();
   int encodingNo();
   int fontNo();
-  const QString& Term();
+  const QString& Device();
   const QString& SessionId();
   const QString& Title();
   const QString& IconName();
@@ -66,11 +65,6 @@ public:
   QString fullTitle() const;
   int keymapNo();
   QString keymap();
-  QStrList getArgs();
-  QString getPgm();
-  QString getCwd();
-  QString getInitial_cwd() { return initial_cwd; }
-  void setInitial_cwd(const QString& _cwd) { initial_cwd=_cwd; }
 
   void setHistory(const HistoryType&);
   const HistoryType& history();
@@ -90,9 +84,6 @@ public:
   void setAddToUtmp(bool);
   void setXonXoff(bool);
   bool testAndSetStateIconName (const QString& newname);
-  bool sendSignal(int signal);
-
-  void setAutoClose(bool b) { autoClose = b; }
 
   // Additional functions for DCOP
   bool closeSession();
@@ -101,12 +92,12 @@ public:
   void sendSession(const QString &text);
   void renameSession(const QString &name);
   QString sessionName() { return title; }
-  int sessionPID() { return 0; }
 
   virtual bool processDynamic(const QCString &fun, const QByteArray &data, QCString& replyType, QByteArray &replyData);
   virtual QCStringList functionsDynamic();
   void enableFullScripting(bool b) { fullScripting = b; }
 
+  bool sendBreak();
   void startZModem(const QString &rz, const QString &dir, const QStringList &list);
   void cancelZModem();
   bool zmodemIsBusy() { return zmodemBusy; }
@@ -127,13 +118,10 @@ public:
 public slots:
 
   void run();
-  void setProgram( const QString &_pgm, const QStrList &_args );
   void done();
-  void done(int);
   void terminate();
   void setUserTitle( int, const QString &caption );
   void changeTabTextColor( int );
-  void ptyError();
   void slotZModemDetected();
   void emitZModemDetected();
 
@@ -145,8 +133,6 @@ public slots:
 
 signals:
 
-  void processExited(KProcess *);
-  void forkedChild();
   void receivedData( const QString& text );
   void done(TESession*);
   void updateTitle(TESession*);
@@ -184,7 +170,6 @@ private:
   bool           monitorSilence;
   bool           notifiedActivity;
   bool           masterMode;
-  bool           autoClose;
   bool           wantedClose;
   QTimer*        monitorTimer;
 
@@ -202,21 +187,15 @@ private:
   QString        userTitle;
   QString        iconName;
   QString        iconText; // as set by: echo -en '\033]1;IconText\007
-  bool           add_to_utmp;
   bool           xon_xoff;
   bool           fullScripting;
 
   QString	 stateIconName;
 
-  QString        pgm;
-  QStrList       args;
-
+  QString        device;
   QString        term;
   ulong          winId;
   QString        sessionId;
-
-  QString        cwd;
-  QString        initial_cwd;
 
   // ZModem
   bool           zmodemBusy;

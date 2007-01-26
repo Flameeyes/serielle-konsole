@@ -38,7 +38,6 @@
 #include <qptrdict.h>
 #include <qsignalmapper.h>
 
-#include "TEPty.h"
 #include "TEWidget.h"
 #include "TEmuVt102.h"
 #include "session.h"
@@ -79,7 +78,6 @@ public:
 
   ~SerielleKonsole();
   void setColLin(int columns, int lines);
-  void setAutoClose(bool on);
   void initFullScreen();
   void initSessionFont(int fontNo);
   void initSessionFont(QFont f);

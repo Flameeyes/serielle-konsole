@@ -363,12 +363,6 @@ SerielleKonsole::~SerielleKonsole()
     kWinModule = 0;
 }
 
-void SerielleKonsole::setAutoClose(bool on)
-{
-    if (sessions.first())
-       sessions.first()->setAutoClose(on);
-}
-
 void SerielleKonsole::showTip()
 {
    KTipDialog::showTip(this,QString::null,true);
@@ -1382,14 +1376,10 @@ void SerielleKonsole::saveProperties(KConfig* config) {
         config->writeEntry(key, colors->find( sessions.current()->schemaNo() )->relPath());
 	key = QString("Encoding%1").arg(counter);
 	config->writeEntry(key, sessions.current()->encodingNo());
-        key = QString("Args%1").arg(counter);
-        config->writeEntry(key, sessions.current()->getArgs());
-        key = QString("Pgm%1").arg(counter);
-        config->writeEntry(key, sessions.current()->getPgm());
         key = QString("SessionFont%1").arg(counter);
         config->writeEntry(key, (sessions.current()->widget())->getVTFont());
-        key = QString("Term%1").arg(counter);
-        config->writeEntry(key, sessions.current()->Term());
+        key = QString("Device%1").arg(counter);
+        config->writeEntry(key, sessions.current()->Device());
         key = QString("KeyTab%1").arg(counter);
         config->writeEntry(key, sessions.current()->keymap());
         key = QString("Icon%1").arg(counter);

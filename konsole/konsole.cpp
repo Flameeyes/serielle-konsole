@@ -2564,7 +2564,7 @@ void SerielleKonsole::newSession(const QString &device, const QString &icon, con
 QString SerielleKonsole::newSession()
 {
   KSimpleConfig *co = defaultSession();
-  return newSession(co, "/dev/ttyS0", QString::null);
+  return newSession(co, "/dev/null", QString::null);
 }
 
 void SerielleKonsole::newSession(int i)

@@ -59,19 +59,21 @@ SessionEditor::SessionEditor(QWidget * parent, const char *name)
   KGlobal::locale()->insertCatalogue("konsole"); // For schema and keytab translations
   KGlobal::iconLoader()->addAppDir( "konsole" );
 
-  directoryLine->setMode(KFile::Directory);
   connect(sessionList, SIGNAL(highlighted(int)), this, SLOT(readSession(int)));
   connect(saveButton, SIGNAL(clicked()), this, SLOT(saveCurrent()));
   connect(removeButton, SIGNAL(clicked()), this, SLOT(removeCurrent()));
 
   connect(nameLine, SIGNAL(textChanged(const QString&)), this, SLOT(sessionModified()));
-  connect(directoryLine, SIGNAL(textChanged(const QString&)), this, SLOT(sessionModified()));
-  connect(executeLine, SIGNAL(textChanged(const QString&)), this, SLOT(sessionModified()));
-  connect(termLine, SIGNAL(textChanged(const QString&)), this, SLOT(sessionModified()));
+  connect(deviceLine, SIGNAL(textChanged(const QString&)), this, SLOT(sessionModified()));
 
   connect(previewIcon, SIGNAL(iconChanged(QString)), this, SLOT(sessionModified()));
 
   connect(fontCombo, SIGNAL(activated(int)), this, SLOT(sessionModified()));
+  connect(flowCombo, SIGNAL(activated(int)), this, SLOT(sessionModified()));
+  connect(speedCombo, SIGNAL(activated(int)), this, SLOT(sessionModified()));
+  connect(parityCombo, SIGNAL(activated(int)), this, SLOT(sessionModified()));
+  connect(bitsCombo, SIGNAL(activated(int)), this, SLOT(sessionModified()));
+  connect(stopBitsCombo, SIGNAL(activated(int)), this, SLOT(sessionModified()));
   connect(keytabCombo, SIGNAL(activated(int)), this, SLOT(sessionModified()));
   connect(schemaCombo, SIGNAL(activated(int)), this, SLOT(sessionModified()));
 }
@@ -159,7 +161,7 @@ QString SessionEditor::readKeymapTitle(const QString & file)
 
 void SessionEditor::loadAllSession(QString currentFile)
 {
-  QStringList list = KGlobal::dirs()->findAllResources("data", "konsole/*.desktop", false, true);
+  QStringList list = KGlobal::dirs()->findAllResources("data", "serielle-konsole/*.desktop", false, true);
   sessionList->clear();
 
   QListBoxItem* currentItem = 0;
@@ -185,7 +187,7 @@ void SessionEditor::loadAllSession(QString currentFile)
 
 void SessionEditor::readSession(int num)
 {
-    int i,counter;
+    int i, k,counter;
     QString str;
     KSimpleConfig* co;
 
@@ -207,11 +209,8 @@ void SessionEditor::readSession(int num)
         str = co->readEntry("Name");
         nameLine->setText(str);
 
-        str = co->readPathEntry("Cwd");
-        directoryLine->lineEdit()->setText(str);
-
-        str = co->readPathEntry("Exec");
-        executeLine->setText(str);
+	str = co->readEntry("Device");
+	deviceLine->setText(str);
 
         str = co->readEntry("Icon","konsole");
         previewIcon->setIcon(str);
@@ -219,8 +218,23 @@ void SessionEditor::readSession(int num)
         i = co->readUnsignedNumEntry("Font",(unsigned int)-1);
         fontCombo->setCurrentItem(i+1);
 
-        str = co->readEntry("Term","xterm");
-        termLine->setText(str);
+	i = co->readUnsignedNumEntry("FlowControl",0);
+	flowCombo->setCurrentItem(i);
+
+	static const int32_t baudrates[] = { 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200 };
+	k = co->readUnsignedNumEntry("Speed",115200);
+	for(i = 0; i < sizeof(baudrates)/sizeof(int32_t); i++)
+	  if ( baudrates[i] == k ) break;
+	speedCombo->setCurrentItem(i);
+
+	i = co->readUnsignedNumEntry("Parity",0);
+	parityCombo->setCurrentItem(i);
+
+	i = co->readUnsignedNumEntry("Bits",0);
+	bitsCombo->setCurrentItem(i-5);
+
+	i = co->readUnsignedNumEntry("StopBits",1);
+	stopBitsCombo->setCurrentItem(i-1);
 
         str = co->readEntry("KeyTab","");
         i=0;
@@ -287,30 +301,6 @@ void SessionEditor::schemaListChanged(const QStringList &titles, const QStringLi
 
 void SessionEditor::saveCurrent()
 {
-  // Verify Execute entry is valid; otherwise Konsole will ignore it.
-  // This code is take from konsole.cpp; if you change one, change both.
-  QString exec = executeLine->text();
-  if ( !exec.isEmpty() )  // If Execute field is empty, default shell is used.
-  {
-    if ( exec.startsWith( "su -c \'" ) )
-      exec = exec.mid( 7, exec.length() - 8 );
-    exec = KRun::binaryName( exec, false );
-    exec = KShell::tildeExpand( exec );
-    QString pexec = KGlobal::dirs()->findExe( exec );
-
-    if ( pexec.isEmpty() )
-    {
-      int result = KMessageBox::warningContinueCancel( this,
-            i18n( "The Execute entry is not a valid command.\n"
-			"You can still save this session, but it will not show up in Konsole's Session list." ),
-			i18n( "Invalid Execute Entry" ),
-			KStdGuiItem::save() );
-      if ( result != KMessageBox::Continue )
-        return;
-    }
-
-  }
-
   QString fullpath;
   if (sessionList->currentText() == nameLine->text()) {
     fullpath = ( ((SessionListBoxText *)sessionList->item( sessionList->currentItem() ))->filename() ).section('/',-1);
@@ -326,20 +316,23 @@ void SessionEditor::saveCurrent()
   }
 
   if (fullpath[0] != '/')
-    fullpath = KGlobal::dirs()->saveLocation("data", "konsole/") + fullpath;
+    fullpath = KGlobal::dirs()->saveLocation("data", "serielle-konsole/") + fullpath;
 
   KSimpleConfig* co = new KSimpleConfig(fullpath);
   co->setDesktopGroup();
-  co->writeEntry("Type","KonsoleApplication");
+  co->writeEntry("Type","SerielleKonsole");
   co->writeEntry("Name",nameLine->text());
-  co->writePathEntry("Cwd",directoryLine->lineEdit()->text());
-  co->writePathEntry("Exec",executeLine->text());
+  co->writeEntry("Device",deviceLine->text());
   co->writeEntry("Icon",previewIcon->icon());
   if (fontCombo->currentItem()==0)
     co->writeEntry("Font","");
   else
     co->writeEntry("Font",fontCombo->currentItem()-1);
-  co->writeEntry("Term",termLine->text());
+  co->writeEntry("FlowControl",flowCombo->currentItem());
+  co->writeEntry("Speed",speedCombo->currentText());
+  co->writeEntry("Parity",parityCombo->currentItem());
+  co->writeEntry("Bits",bitsCombo->currentItem()+5);
+  co->writeEntry("StopBits",bitsCombo->currentItem()+1);
   co->writeEntry("KeyTab",*keytabFilename.at(keytabCombo->currentItem()));
   co->writeEntry("Schema",*schemaFilename.at(schemaCombo->currentItem()));
   co->sync();
@@ -354,7 +347,7 @@ void SessionEditor::removeCurrent()
   QString base = ((SessionListBoxText *)sessionList->item( sessionList->currentItem() ))->filename();
 
   // Query if system sessions should be removed
-  if (locateLocal("data", "konsole/" + base.section('/', -1)) != base) {
+  if (locateLocal("data", "serielle-konsole/" + base.section('/', -1)) != base) {
     int code = KMessageBox::warningContinueCancel(this,
       i18n("You are trying to remove a system session. Are you sure?"),
       i18n("Removing System Session"),

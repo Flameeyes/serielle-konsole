@@ -61,7 +61,6 @@ TESession::TESession(TEWidget* _te, const QString &_device, ulong _winId,
    , font_no(3)
    , silence_seconds(10)
    , iconName("konsole")
-   , xon_xoff(false)
    , device(_device)
    , winId(_winId)
    , sessionId(_sessionId)
@@ -145,7 +144,6 @@ void TESession::run()
 {
   QString appId=kapp->dcopClient()->appId();
 
-  sh->setXonXoff(xon_xoff);
   sh->setErase(em->getErase());
 }
 
@@ -461,11 +459,6 @@ void TESession::setMonitorSilenceSeconds(int seconds)
 void TESession::setMasterMode(bool _master)
 {
   masterMode=_master;
-}
-
-void TESession::setXonXoff(bool set)
-{
-  xon_xoff = set;
 }
 
 void TESession::slotZModemDetected()

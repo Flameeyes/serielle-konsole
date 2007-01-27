@@ -101,25 +101,6 @@ void TETty::setSize(int lines, int cols)
     ioctl( ttyfd, TIOCSWINSZ, (char *)&winSize );
 }
 
-void TETty::setXonXoff(bool on)
-{
-  if (ttyfd < 0) return;
-
-  // without the '::' some version of HP-UX thinks, this declares
-  // the struct in this class, in this method, and fails to find
-  // the correct tc[gs]etattr
-  struct ::termios ttmode;
-
-  _tcgetattr(ttyfd, &ttmode);
-
-  if (!on)
-    ttmode.c_iflag &= ~(IXOFF | IXON);
-  else
-    ttmode.c_iflag |= (IXOFF | IXON);
-
-  _tcsetattr(ttyfd, &ttmode);
-}
-
 void TETty::useUtf8(bool on)
 {
   if ( ttyfd < 0 ) return;
@@ -151,6 +132,141 @@ void TETty::setErase(char erase)
   _tcsetattr(ttyfd, &tios);
 }
 
+bool TETty::setFlowControl(FlowControl flow)
+{
+  if (ttyfd < 0) return false;
+
+  struct ::termios options;
+
+  _tcgetattr(ttyfd, &options);
+
+  options.c_iflag &= ~(IXOFF | IXON);
+  options.c_cflag &= ~(CRTSCTS);
+  switch(flow) {
+  case fcNone: break;
+  case fcSoftware:
+    options.c_iflag |= (IXOFF | IXON);
+    break;
+  case fcHardware:
+    options.c_cflag |= CRTSCTS;
+  }
+
+  if ( _tcsetattr(ttyfd, &options) < 0 ) {
+    qWarning("FlowControl %d cannot be set.", flow);
+    return false;
+  }
+
+  return true;
+}
+
+bool TETty::setSpeed(int speed) {
+  if ( ttyfd < 0 ) return false;
+
+  static const int baudrates[] = {
+    300, 600, 1200, 2400, 4800, 9600,
+    19200, 38400, 57600, 115200
+  };
+  static const int baudconsts[] = {
+    B300, B600, B1200, B2400, B4800, B9600,
+    B19200, B38400, B57600, B115200, -1
+  };
+
+  size_t i;
+  for (i = 0; i < sizeof(baudrates)/sizeof(baudrates[0]); i++)
+    if ( baudrates[i] == speed ) break;
+
+  if ( baudconsts[i] == -1 ) {
+    qWarning("Invalid or unsupported speed %d", speed);
+    return false;
+  }
+
+  struct ::termios options;
+
+  _tcgetattr(ttyfd, &options);
+  cfsetispeed(&options, baudconsts[i]);
+  cfsetospeed(&options, baudconsts[i]);
+
+  if ( _tcsetattr(ttyfd, &options) < 0 ) {
+    qWarning("Speed %d cannot be set.", speed);
+    return false;
+  }
+
+  return true;
+}
+
+bool TETty::setParity(Parity parity)
+{
+  if (ttyfd < 0) return false;
+
+  struct ::termios options;
+
+  _tcgetattr(ttyfd, &options);
+
+  options.c_cflag &= ~(PARENB|PARODD);
+  switch(parity) {
+  case parNone: break;
+  case parOdd: options.c_cflag |= PARODD; /* Fall through intended */
+  case parEven: options.c_cflag |= PARENB; break;
+  }
+
+  if ( _tcsetattr(ttyfd, &options) < 0 ) {
+    qWarning("Parity %d cannot be set.", parity);
+    return false;
+  }
+
+  return true;
+}
+
+bool TETty::setBits(uint8_t bits) {
+  if ( ttyfd < 0 ) return false;
+
+  struct ::termios options;
+
+  _tcgetattr(ttyfd, &options);
+  options.c_cflag &= ~(CS5|CS6|CS7|CS8);
+
+  switch(bits) {
+  case 5: options.c_cflag |= CS5; break;
+  case 6: options.c_cflag |= CS6; break;
+  case 7: options.c_cflag |= CS7; break;
+  case 8: options.c_cflag |= CS8; break;
+  default:
+    qWarning("Invalid bits count %d.", bits);
+    return false;
+  }
+
+  if ( _tcsetattr(ttyfd, &options) < 0 ) {
+    qWarning("Bits %d cannot be set.", bits);
+    return false;
+  }
+
+  return true;
+}
+
+bool TETty::setStopBits(uint8_t stopbits) {
+  if ( ttyfd < 0 ) return false;
+
+  struct ::termios options;
+
+  _tcgetattr(ttyfd, &options);
+  options.c_cflag &= ~(CSTOPB);
+
+  switch(stopbits) {
+  case 1: break;
+  case 2: options.c_cflag |= CSTOPB; break;
+  default:
+    qWarning("Invalid stop bits count %d.", stopbits);
+    return false;
+  }
+
+  if ( _tcsetattr(ttyfd, &options) < 0 ) {
+    qWarning("Stop bits %d cannot be set.", stopbits);
+    return false;
+  }
+
+  return true;
+}
+
 /*!
     Create an instance.
 */
@@ -161,13 +277,13 @@ TETty::TETty(const QString &_tty)
 
   ttyfd = open(ttyName.latin1(), O_RDWR|O_NOCTTY|O_NONBLOCK);
 
+  // without the '::' some version of HP-UX thinks, this declares
+  // the struct in this class, in this method, and fails to find
+  // the correct tc[gs]etattr
   struct ::termios options;
   _tcgetattr(ttyfd, &options);
-  cfsetispeed(&options, B115200);
-  cfsetospeed(&options, B115200);
-  options.c_cflag |= (CLOCAL | CREAD | CS8);
-  options.c_cflag &= ~(CRTSCTS);
-  options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG | PARENB | CSTOPB | CSIZE);
+  options.c_cflag |= (CLOCAL | CREAD);
+  options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
   _tcsetattr(ttyfd, &options);
 
   m_readNotifier = new QSocketNotifier( ttyfd, QSocketNotifier::Read, this );

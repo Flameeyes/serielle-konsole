@@ -248,7 +248,6 @@ SerielleKonsole::SerielleKonsole(const char* name, int histon, bool menubaron, b
 ,b_allowResize(true) // Whether application may resize
 ,b_fixedSize(false) // Whether user may resize
 ,b_addToUtmp(true)
-,b_xonXoff(false)
 ,b_bidiEnabled(false)
 ,b_fullScripting(false)
 ,b_showstartuptip(true)
@@ -1468,7 +1467,6 @@ void SerielleKonsole::readProperties(KConfig* config, const QString &schema, boo
      for (TESession *ses = sessions.first(); ses; ses = sessions.next())
        ses->setMonitorSilenceSeconds(monitorSilenceSeconds);
 
-     b_xonXoff = config->readBoolEntry("XonXoff",false);
      b_matchTabWinTitle = config->readBoolEntry("MatchTabWinTitle",false);
      config->setGroup("UTMP");
      b_addToUtmp = config->readBoolEntry("AddToUtmp",true);
@@ -2633,6 +2631,11 @@ QString SerielleKonsole::newSession(KSimpleConfig *co, const QString &_device,
   QString sch = s_kconfigSchema;
   QString txt;
   QFont font = defaultFont;
+  TETty::FlowControl flow = TETty::fcNone;
+  int speed = 115200;
+  TETty::Parity parity = TETty::parNone;
+  int bits = 8;
+  int stopbits = 1;
 
   if (co) {
      co->setDesktopGroup();
@@ -2642,6 +2645,11 @@ QString SerielleKonsole::newSession(KSimpleConfig *co, const QString &_device,
      txt = co->readEntry("Name");
      font = co->readFontEntry("SessionFont", &font);
      icon = co->readEntry("Icon", icon);
+     flow = TETty::FlowControl(co->readNumEntry("FlowControl", flow));
+     speed = co->readNumEntry("Speed", speed);
+     parity = TETty::Parity(co->readNumEntry("Parity", parity));
+     bits = co->readNumEntry("Bits", parity);
+     stopbits = co->readNumEntry("StopBits", parity);
   }
 
   if (!_device.isEmpty())
@@ -2729,7 +2737,11 @@ QString SerielleKonsole::newSession(KSimpleConfig *co, const QString &_device,
 
   s->setTitle(txt);
   s->setIconName(icon);
-  s->setXonXoff(b_xonXoff);
+  s->setFlowControl(flow);
+  s->setSpeed(speed);
+  s->setParity(parity);
+  s->setBits(bits);
+  s->setStopBits(stopbits);
 
   if (b_histEnabled && m_histSize)
     s->setHistory(HistoryTypeBuffer(m_histSize));

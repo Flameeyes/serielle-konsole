@@ -391,7 +391,6 @@ private:
   bool        b_allowResize:1; // Whether application may resize
   bool        b_fixedSize:1; // Whether user may resize
   bool        b_addToUtmp:1;
-  bool        b_xonXoff:1;
   bool        b_bidiEnabled:1;
 
   bool        b_histEnabled:1;

@@ -40,14 +40,21 @@ Q_OBJECT
     ~TETty();
 
   public:
+    enum FlowControl { fcNone, fcSoftware, fcHardware };
+    enum Parity { parNone, parEven, parOdd };
 
     QString error() { return m_strError; }
-    void setXonXoff(bool on);
     void setSize(int lines, int cols);
     void setErase(char erase);
 
   public slots:
     void useUtf8(bool on);
+    bool setFlowControl(FlowControl flow);
+    bool setSpeed(int speed);
+    bool setParity(Parity parity);
+    bool setBits(uint8_t bits);
+    bool setStopBits(uint8_t stopbits);
+
     void send_bytes(const char* s, int len);
     bool sendBreak();
 

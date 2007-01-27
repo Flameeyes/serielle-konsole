@@ -81,8 +81,6 @@ public:
   void setTitle(const QString& _title);
   void setIconName(const QString& _iconName);
   void setIconText(const QString& _iconText);
-  void setAddToUtmp(bool);
-  void setXonXoff(bool);
   bool testAndSetStateIconName (const QString& newname);
 
   // Additional functions for DCOP
@@ -130,6 +128,21 @@ public slots:
   void zmodemRcvBlock(const char *data, int len);
   void zmodemDone();
   void zmodemContinue();
+
+  void setFlowControl(TETty::FlowControl flow)
+  { sh->setFlowControl(flow); }
+
+  void setSpeed(int speed)
+  { sh->setSpeed(speed); }
+
+  void setParity(TETty::Parity parity)
+  { sh->setParity(parity); }
+
+  void setBits(uint8_t bits)
+  { sh->setBits(bits); }
+
+  void setStopBits(uint8_t stopbits)
+  { sh->setStopBits(stopbits); }
 
 signals:
 
@@ -187,7 +200,6 @@ private:
   QString        userTitle;
   QString        iconName;
   QString        iconText; // as set by: echo -en '\033]1;IconText\007
-  bool           xon_xoff;
   bool           fullScripting;
 
   QString	 stateIconName;

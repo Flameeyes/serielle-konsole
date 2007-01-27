@@ -1929,7 +1929,7 @@ void SerielleKonsole::slotConfigureKeys()
 void SerielleKonsole::slotConfigure()
 {
   QStringList args;
-  args << "kcmkonsole";
+  args << "kcmserielle";
   KApplication::kdeinitExec( "kcmshell", args );
 }
 

@@ -230,7 +230,7 @@ void SessionEditor::readSession(int num)
 	i = co->readUnsignedNumEntry("Parity",0);
 	parityCombo->setCurrentItem(i);
 
-	i = co->readUnsignedNumEntry("Bits",0);
+	i = co->readUnsignedNumEntry("Bits",8);
 	bitsCombo->setCurrentItem(i-5);
 
 	i = co->readUnsignedNumEntry("StopBits",1);

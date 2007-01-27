@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Icon=konsole
+Type=Application
+Exec=kcmshell kcmserielle
+
+X-KDE-Library=serielle
+X-KDE-ParentApp=kcontrol
+Name=Serielle Konsole
+Comment=Serielle Konsole configuration module
+Keywords=serielle konsole,schema,serielle konsole background,colors,background,terminal application,terminal,serial terminal

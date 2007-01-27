@@ -1,4 +1,4 @@
-SUBDIRS = konsole other fonts
+SUBDIRS = konsole other fonts kcmserielle
 
 xdg_apps_DATA = serielle-konsole.desktop
 

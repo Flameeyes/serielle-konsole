@@ -270,7 +270,7 @@ extern "C" int KDE_EXPORT kdemain(int argc, char* argv[])
   KImageIO::registerFormats(); // add io for additional image formats
   //2.1 secs
 
-  QString title;
+  QString title = "Null Device";
   if(args->isSet("T")) {
     title = QFile::decodeName(args->getOption("T"));
   }

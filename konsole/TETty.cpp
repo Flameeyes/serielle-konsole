@@ -337,7 +337,6 @@ void TETty::doSendJobs() {
   
   SendJob& job = pendingSendJobs.first();
   int result = ::write(ttyfd, job.buffer.data(), job.length);
-  qWarning("Sent %d bytes... ", job.length);
   if ( result < 0 )
   {
     qWarning("Uh oh.. can't write data..");
@@ -355,7 +354,6 @@ void TETty::appendSendJob(const char* s, int len)
 /*! sends len bytes through the line */
 void TETty::send_bytes(const char* s, int len)
 {
-  qWarning("Sending %d bytes... ", len);
   appendSendJob(s,len);
   if (!m_bufferFull)
      doSendJobs();

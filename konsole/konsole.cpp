@@ -2564,7 +2564,7 @@ void SerielleKonsole::newSession(const QString &device, const QString &icon, con
 QString SerielleKonsole::newSession()
 {
   KSimpleConfig *co = defaultSession();
-  return newSession(co, "/dev/null", QString::null);
+  return newSession(co, "/dev/null", QString::null, "Null Device");
 }
 
 void SerielleKonsole::newSession(int i)
@@ -2572,8 +2572,9 @@ void SerielleKonsole::newSession(int i)
   if (i == SESSION_NEW_WINDOW_ID)
   {
     // TODO: "type" isn't passed properly
-    SerielleKonsole* konsole = new SerielleKonsole(name(), b_histEnabled, !menubar->isHidden(), n_tabbar != TabNone, b_framevis,
-                                   n_scroll != TEWidget::SCRNONE, 0, false, 0);
+    SerielleKonsole* konsole = new SerielleKonsole(name(), b_histEnabled, !menubar->isHidden(),
+						   n_tabbar != TabNone, b_framevis,
+						   n_scroll != TEWidget::SCRNONE, 0, false, 0);
     konsole->newSession();
     konsole->enableFullScripting(b_fullScripting);
     konsole->enableFixedSize(b_fixedSize);

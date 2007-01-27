@@ -223,7 +223,7 @@ bool TETty::setBits(uint8_t bits) {
   struct ::termios options;
 
   _tcgetattr(ttyfd, &options);
-  options.c_cflag &= ~(CS5|CS6|CS7|CS8);
+  options.c_cflag &= ~CSIZE;
 
   switch(bits) {
   case 5: options.c_cflag |= CS5; break;

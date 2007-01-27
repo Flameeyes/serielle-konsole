@@ -368,9 +368,6 @@
                             <property name="name">
                                 <cstring>speedCombo</cstring>
                             </property>
-                            <property name="cursor">
-                                <cursor>2</cursor>
-                            </property>
                             <property name="currentItem">
                                 <number>9</number>
                             </property>

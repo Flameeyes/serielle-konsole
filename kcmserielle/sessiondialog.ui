@@ -61,7 +61,7 @@
                                 <string>&amp;Device:</string>
                             </property>
                             <property name="buddy" stdset="0">
-                                <cstring>executeLine</cstring>
+                                <cstring>deviceLine</cstring>
                             </property>
                         </widget>
                         <widget class="QLabel" row="0" column="0">
@@ -308,7 +308,10 @@
                                 <cstring>textLabel3</cstring>
                             </property>
                             <property name="text">
-                                <string>Speed:</string>
+                                <string>&amp;Speed:</string>
+                            </property>
+                            <property name="buddy" stdset="0">
+                                <cstring>speedCombo</cstring>
                             </property>
                         </widget>
                         <widget class="QComboBox">
@@ -387,7 +390,10 @@
                                 <cstring>textLabel2</cstring>
                             </property>
                             <property name="text">
-                                <string>Flow control:</string>
+                                <string>F&amp;low control:</string>
+                            </property>
+                            <property name="buddy" stdset="0">
+                                <cstring>flowCombo</cstring>
                             </property>
                         </widget>
                         <widget class="QComboBox">
@@ -504,7 +510,10 @@
                                 <cstring>textLabel4</cstring>
                             </property>
                             <property name="text">
-                                <string>Parity:</string>
+                                <string>&amp;Parity:</string>
+                            </property>
+                            <property name="buddy" stdset="0">
+                                <cstring>parityCombo</cstring>
                             </property>
                         </widget>
                         <widget class="QComboBox">
@@ -542,7 +551,10 @@
                                 <cstring>textLabel5</cstring>
                             </property>
                             <property name="text">
-                                <string>Bits:</string>
+                                <string>&amp;Bits:</string>
+                            </property>
+                            <property name="buddy" stdset="0">
+                                <cstring>bitsCombo</cstring>
                             </property>
                         </widget>
                         <widget class="QComboBox">
@@ -569,6 +581,9 @@
                             <property name="name">
                                 <cstring>bitsCombo</cstring>
                             </property>
+                            <property name="currentItem">
+                                <number>3</number>
+                            </property>
                         </widget>
                     </hbox>
                 </widget>
@@ -585,7 +600,10 @@
                                 <cstring>textLabel6</cstring>
                             </property>
                             <property name="text">
-                                <string>Stop Bits:</string>
+                                <string>S&amp;top Bits:</string>
+                            </property>
+                            <property name="buddy" stdset="0">
+                                <cstring>bitsCombo</cstring>
                             </property>
                         </widget>
                         <widget class="QComboBox">

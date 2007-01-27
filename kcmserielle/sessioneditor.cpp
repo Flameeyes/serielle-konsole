@@ -332,7 +332,7 @@ void SessionEditor::saveCurrent()
   co->writeEntry("Speed",speedCombo->currentText());
   co->writeEntry("Parity",parityCombo->currentItem());
   co->writeEntry("Bits",bitsCombo->currentItem()+5);
-  co->writeEntry("StopBits",bitsCombo->currentItem()+1);
+  co->writeEntry("StopBits",stopBitsCombo->currentItem()+1);
   co->writeEntry("KeyTab",*keytabFilename.at(keytabCombo->currentItem()));
   co->writeEntry("Schema",*schemaFilename.at(schemaCombo->currentItem()));
   co->sync();

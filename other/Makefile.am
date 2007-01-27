@@ -1,5 +1,3 @@
-SUBDIRS= icons wallpapers
-
 serielle_konsole_other_datadir = $(kde_datadir)/serielle-konsole
 serielle_konsole_other_data_DATA = BlackOnLightColor.schema BlackOnLightYellow.schema BlackOnWhite.schema \
 	Example.Schema GreenOnBlack.schema WhiteOnBlack.schema \

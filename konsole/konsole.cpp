@@ -3097,7 +3097,7 @@ void SerielleKonsole::addSessionCommand(const QString &path)
 {
   KSimpleConfig* co;
   if (path.isEmpty())
-    co = new KSimpleConfig(locate("appdata", "firstserial.desktop"), true /* read only */);
+    co = new KSimpleConfig(locate("appdata", "nulldevice.desktop"), true /* read only */);
   else
     co = new KSimpleConfig(path,true);
   co->setDesktopGroup();

@@ -1,6 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-TypeSerielleKonsole
-Name=First Linux Serial Port
-Comment=Open first Linux serial port
-Device=/dev/ttyS0

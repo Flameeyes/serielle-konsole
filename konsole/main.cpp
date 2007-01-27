@@ -427,7 +427,7 @@ extern "C" int KDE_EXPORT kdemain(int argc, char* argv[])
 
         sTitle = sessionconfig->readEntry("Title0", title);
         sIcon = sessionconfig->readEntry("Icon0","konsole");
-	sDevice = sessionconfig->readEntry("Device0", "/dev/ttyS0");
+	sDevice = sessionconfig->readEntry("Device0", "/dev/null");
 	n_tabbar = QMIN(sessionconfig->readUnsignedNumEntry("tabbar",SerielleKonsole::TabBottom),2);
         SerielleKonsole *m = new SerielleKonsole(wname,histon,menubaron,tabbaron,frameon,scrollbaron,0/*type*/,true,n_tabbar);
 
@@ -466,7 +466,7 @@ extern "C" int KDE_EXPORT kdemain(int argc, char* argv[])
           key = QString("Icon%1").arg(counter);
           sIcon = sessionconfig->readEntry(key,"konsole");
 	  key = QString("Device%1").arg(counter);
-	  sDevice = sessionconfig->readEntry(key,"/dev/ttyS0");
+	  sDevice = sessionconfig->readEntry(key,"/dev/null");
           m->newSession(sDevice, sIcon, sTitle);
           m->setSessionTitle(sTitle);  // Use title as is
           key = QString("Schema%1").arg(counter);
@@ -512,7 +512,7 @@ extern "C" int KDE_EXPORT kdemain(int argc, char* argv[])
   else
   {
     SerielleKonsole*  m = new SerielleKonsole(wname,histon,menubaron,tabbaron,frameon,scrollbaron,type, false, 0);
-    m->newSession("/dev/ttyS0", QString::null, title);
+    m->newSession("/dev/", QString::null, title);
     m->enableFullScripting(full_script);
     m->enableFixedSize(fixed_size);
     //3.8 :-(

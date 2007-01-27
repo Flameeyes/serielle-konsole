@@ -1,0 +1,4 @@
+[Desktop Entry]
+Type=SerielleKonsole
+Name=Null Device
+Device=/dev/null

@@ -469,13 +469,15 @@ void SerielleKonsole::makeGUI()
    m_pasteClipboard->plug(m_edit);
 
    m_edit->setCheckable(true);
-
+   
    if ( m_zmodemUpload ) {
       m_edit->insertSeparator();
       m_zmodemUpload->plug( m_edit );
    }
 
    m_edit->insertSeparator();
+   m_sendBreak->plug(m_edit);
+
    m_clearTerminal->plug(m_edit);
 
    m_resetClearTerminal->plug(m_edit);
@@ -970,6 +972,8 @@ void SerielleKonsole::makeBasicGUI()
   m_pasteSelection = new KAction(i18n("Paste Selection"), Qt::CTRL+Qt::SHIFT+Qt::Key_Insert, this,
                                  SLOT(slotPasteSelection()), m_shortcuts, "pasteselection");
 
+  m_sendBreak = new KAction(i18n("Send &Break"), 0, this,
+			    SLOT(sendBreak()), m_shortcuts, "send_break");
   m_clearTerminal = new KAction(i18n("C&lear Terminal"), 0, this,
                                 SLOT(slotClearTerminal()), m_shortcuts, "clear_terminal");
   m_resetClearTerminal = new KAction(i18n("&Reset && Clear Terminal"), 0, this,
@@ -2229,6 +2233,11 @@ void SerielleKonsole::slotResetClearTerminal()
     se->getEmulation()->reset();
     se->getEmulation()->clearSelection();
   }
+}
+
+void SerielleKonsole::sendBreak()
+{
+  if (se) se->sendBreak();
 }
 
 void SerielleKonsole::runSession(TESession* s)

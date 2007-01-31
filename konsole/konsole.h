@@ -167,6 +167,7 @@ private slots:
   void moveSessionRight();
   void allowPrevNext();
   void setSchema(int n, TEWidget* tewidget=0);   // no slot necessary?
+  void sendBreak();
   void slotClearTerminal();
   void slotResetClearTerminal();
   void slotSelectTabbar();
@@ -336,6 +337,7 @@ private:
   KAction       *m_copyClipboard;
   KAction       *m_pasteClipboard;
   KAction       *m_pasteSelection;
+  KAction       *m_sendBreak;
   KAction       *m_clearTerminal;
   KAction       *m_resetClearTerminal;
   KAction       *m_clearAllSessionHistories;

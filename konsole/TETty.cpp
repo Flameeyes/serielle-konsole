@@ -284,8 +284,9 @@ TETty::TETty(const QString &_tty)
   _tcgetattr(ttyfd, &options);
   qWarning("Current c_oflag: %08x", options.c_oflag);
 
-  options.c_cflag |= (CLOCAL | CREAD);
-  options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+  options.c_cflag = (CLOCAL | CREAD);
+  options.c_oflag = OCRNL;
+  options.c_lflag = 0;
   _tcsetattr(ttyfd, &options);
 
   m_readNotifier = new QSocketNotifier( ttyfd, QSocketNotifier::Read, this );

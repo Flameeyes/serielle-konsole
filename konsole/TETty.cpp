@@ -282,11 +282,11 @@ TETty::TETty(const QString &_tty)
   // the correct tc[gs]etattr
   struct ::termios options;
   _tcgetattr(ttyfd, &options);
-  qWarning("Current c_oflag: %08x", options.c_oflag);
 
   options.c_cflag = (CLOCAL | CREAD);
-  options.c_oflag = OCRNL;
+  options.c_oflag = 0;
   options.c_lflag = 0;
+  options.c_iflag = 0;
   _tcsetattr(ttyfd, &options);
 
   m_readNotifier = new QSocketNotifier( ttyfd, QSocketNotifier::Read, this );
